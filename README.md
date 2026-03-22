@@ -34,23 +34,22 @@ Kore Flow uses a highly secure **Multi-tenant architecture** at the database lev
    ```bash
    git clone (https://github.com/Garcia-Sebastiao/koreflow-ai.git)
 
-
 2. **Install dependencies**
    ```bash
    npm install
 
 3. **Configure Environment Variables**
-   ```bash 
-  VITE_FIREBASE_API_KEY=your_api_key
-  VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-  VITE_FIREBASE_PROJECT_ID=your_project_id
-  VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-  VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
-  VITE_FIREBASE_APP_ID=your_app_id
+    ```bash
+     VITE_FIREBASE_API_KEY=your_api_key
+     VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+     VITE_FIREBASE_PROJECT_ID=your_project_id
+     VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+     VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+     VITE_FIREBASE_APP_ID=your_app_id
 
 4. **Launch Development Server**
    ```bash
-  npm run dev
+     npm run dev
 
 ## 📜 License
 This project is licensed under the MIT License - see the LICENSE file for details.
