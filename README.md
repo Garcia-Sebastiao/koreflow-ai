@@ -40,8 +40,7 @@ Kore Flow uses a highly secure **Multi-tenant architecture** at the database lev
    npm install
 
 3. **Configure Environment Variables**
-   ```bash
-  
+   ```bash 
   VITE_FIREBASE_API_KEY=your_api_key
   VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
   VITE_FIREBASE_PROJECT_ID=your_project_id
