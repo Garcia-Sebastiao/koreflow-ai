@@ -33,7 +33,8 @@ export function useCreateComment({ task }: { task: Task }) {
         queryKey: TASK_KEYS.comments(task.id),
       });
       setComment("");
-    } catch {
+    } catch (error) {
+      console.log(error);
       toast.error("Erro ao enviar comentário.");
     } finally {
       setIsSending(false);

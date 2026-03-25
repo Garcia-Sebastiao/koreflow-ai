@@ -71,13 +71,13 @@ export function AssigneeSelector({ task, workspaceId }: AssigneeSelectorProps) {
               className="w-5! min-w-5! h-5! min-h-5!"
             />
             <span className="text-xs text-gray-600">{task.assignee.name}</span>
-            <button
-              type="button"
+            <div
+              role="button"
               onClick={handleRemove}
               className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-400 hover:text-red-500"
             >
               <XIcon className="w-3 h-3" />
-            </button>
+            </div>
           </>
         ) : (
           <>

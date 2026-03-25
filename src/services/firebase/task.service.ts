@@ -9,6 +9,7 @@ import {
   query,
   where,
   serverTimestamp,
+  orderBy,
 } from "firebase/firestore";
 import { db } from "@/config/firebase.config";
 import type { Task, TaskComment, TaskStatusEvent } from "@/types/task.types";
@@ -93,10 +94,17 @@ export const taskService = {
   },
 
   async listComments(taskId: string): Promise<TaskComment[]> {
-    const snap = await getDocs(collection(db, "tasks", taskId, "comments"));
-    return snap.docs
-      .map((d) => ({ id: d.id, ...d.data() }) as TaskComment)
-      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+    const q = query(
+      collection(db, "tasks", taskId, "comments"),
+      orderBy("createdAt", "desc"),
+    );
+
+    const snap = await getDocs(q);
+
+    return snap.docs.map((d) => ({
+      id: d.id,
+      ...d.data(),
+    })) as TaskComment[];
   },
 
   async updateAssignee(

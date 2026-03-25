@@ -45,6 +45,7 @@ export function TaskDetailModal({
   });
   const task = taskData as Task;
 
+
   const { data: comments = [] } = useCommentsQuery(task?.id as string);
   const [comment, setComment] = useState("");
 

@@ -8,6 +8,7 @@ import { CreateTaskModal } from "./components/task/create-task-modal";
 import { TaskDetailModal } from "./components/task/task-details-modal";
 import { RejectionModal } from "./components/task/rejection-modal";
 import { useBoardQuery } from "./use-board-query";
+import { Loading } from "../loading";
 
 export default function BoardPage() {
   const { id: boardId } = useParams<{ id: string }>();
@@ -15,7 +16,7 @@ export default function BoardPage() {
   const [createStatus, setCreateStatus] = useState<TaskStatus | null>(null);
   const [selectedTask, setSelectedTask] = useState<string | null>(null);
 
-  const { data: board } = useBoardQuery(boardId!);
+  const { data: board, isPending: isGettingBoard } = useBoardQuery(boardId!);
   const workspaceId = board?.workspaceId ?? "";
   const { data: tasks = [] } = useTasksQuery(boardId!, workspaceId);
   const { moveTask, rejectionTask, clearRejection } = useMoveTask(boardId!);
@@ -24,6 +25,10 @@ export default function BoardPage() {
     const task = tasks.find((t) => t.id === taskId);
     if (task) moveTask(task, newStatus);
   };
+
+  if (isGettingBoard) {
+    return <Loading />;
+  }
 
   return (
     <div className="flex flex-col h-full w-full">

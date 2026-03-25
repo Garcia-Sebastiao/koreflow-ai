@@ -2,13 +2,17 @@ import { Outlet, Navigate } from "react-router";
 import { useAuthStore } from "@/store/auth.store";
 import { Sidebar } from "../sidebar/sidebar";
 import { Header } from "../header/header";
+import { Loading } from "@/pages/app/loading";
 
 export function MainLayout() {
-  const { isAuthenticated } = useAuthStore();
-
+  const { isAuthenticated, user } = useAuthStore();
 
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
+  }
+
+  if (!user) {
+    return <Loading />;
   }
 
   return (
