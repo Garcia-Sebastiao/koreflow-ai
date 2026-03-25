@@ -6,6 +6,7 @@ import { Header } from "../header/header";
 export function MainLayout() {
   const { isAuthenticated } = useAuthStore();
 
+
   if (!isAuthenticated) {
     return <Navigate to="/" replace />;
   }

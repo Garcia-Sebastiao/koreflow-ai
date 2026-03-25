@@ -3,80 +3,78 @@ import { BaseDropdown } from "@/components/shared/base-dropdown/base-dropdown";
 import { ConfirmModal } from "@/components/shared/modal/confirm-modal";
 import { Button } from "@/components/ui/button";
 import { useOpen } from "@/hooks/use-open";
-import { TrashIcon, UserStarIcon } from "lucide-react";
-import { useState } from "react";
+import { TrashIcon } from "lucide-react";
+import { useNavigate } from "react-router";
+import type { Board } from "@/types/organization.types";
+import type { Timestamp } from "firebase/firestore";
 
-export function WorkspaceBoardsItem() {
-  const [modalType, setModalType] = useState<"delete" | "leader" | undefined>(
-    undefined,
-  );
+interface WorkspaceBoardsItemProps {
+  board: Board;
+  isLoading: boolean;
+  onDelete: () => void;
+}
+
+export function WorkspaceBoardsItem({
+  board,
+  isLoading,
+  onDelete,
+}: WorkspaceBoardsItemProps) {
   const { isOpen, onClose, onOpen } = useOpen();
-  const handleClose = () => {
+  const navigate = useNavigate();
+
+  const handleConfirm = () => {
+    onDelete();
     onClose();
-    setModalType(undefined);
   };
 
-  const handleOpen = (type: "delete" | "leader") => {
-    onOpen();
-
-    if (type == "delete") {
-      setModalType(type);
-      return;
-    }
-
-    setModalType(type);
+  const handleNavigate = () => {
+    navigate(`/app/board/${board.id}`);
   };
+
+  const date = (board.createdAt as Timestamp)?.seconds
+    ? new Date((board.createdAt as Timestamp).seconds * 1000)
+    : null;
+
   return (
     <>
-      <div className="flex p-2 rounded-lg hover:bg-gray-100 transition-all items-center justify-between">
-        <div className="flex items-center gap-x-4">
-          <BaseAvatar
-            src="https://yt3.ggpht.com/nOZ7FSHGscNGp4-kb87a4aF0sM0_SzLwNW2r7Au8eDP8XQliIOwB9I1Lq6mkcs6OJJmVPdHV=s88-c-k-c0x00ffffff-no-rj"
-            className="w-8 h-8"
-            name=""
-          />
+      <div
+        onClick={handleNavigate}
+        className="flex p-3 rounded-xl border border-gray-100 bg-gray-50 hover:border-gray-200 transition-all cursor-pointer items-center justify-between group"
+      >
+        <div className="flex items-center gap-x-3">
+          <BaseAvatar src="" className="w-8 h-8" name={board.title} />
 
           <div className="flex flex-col">
-            <span className="font-medium text-gray-700">Frontend Dev.</span>
-
-            <span className="font-medium text-xs text-gray-500">
-              (03) Membros - (12) Tarefas
+            <span className="font-medium text-gray-700 group-hover:text-gray-900 transition-colors">
+              {board.title}
+            </span>
+            <span className="text-xs text-gray-400">
+              {date ? date.toLocaleDateString("pt-PT") : "Data indisponível"}
             </span>
           </div>
         </div>
 
-        <BaseDropdown>
-          <div className="flex flex-col">
+        <div onClick={(e) => e.stopPropagation()}>
+          <BaseDropdown>
             <Button
-              onClick={() => handleOpen("delete")}
-              className="text-gray-500 hover:text-red-500 justify-start bg-transparent hover:bg-red-500/10"
+              onClick={onOpen}
+              disabled={isLoading}
+              className="text-gray-500 w-full hover:text-red-500 justify-start bg-transparent hover:bg-red-500/10"
             >
               <TrashIcon />
-              Remover
+              Eliminar Quadro
             </Button>
-
-            <Button
-              onClick={() => handleOpen("leader")}
-              className="text-gray-500 hover:text-primary justify-start bg-transparent hover:bg-primary/10"
-            >
-              <UserStarIcon />
-              Colocar como Líder
-            </Button>
-          </div>
-        </BaseDropdown>
+          </BaseDropdown>
+        </div>
       </div>
 
       {isOpen && (
         <ConfirmModal
-          danger={modalType == "delete"}
-          onConfirm={() => {}}
-          title={modalType == "delete" ? "Remover membro?" : "Torner líder"}
-          label={
-            modalType == "delete"
-              ? "Tem certeza que pretende remover este membro?"
-              : "Tem certeza que pretende tornar este membro em líder"
-          }
-          onClose={handleClose}
+          danger
+          onConfirm={handleConfirm}
+          title="Eliminar quadro?"
+          label={`Tem certeza que pretende eliminar o quadro "${board.title}"? Esta ação é irreversível.`}
+          onClose={onClose}
         />
       )}
     </>

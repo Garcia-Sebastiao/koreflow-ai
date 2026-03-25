@@ -8,8 +8,8 @@ export function WorkspacesList() {
   const { data: workspaces, isLoading } = useWorkspacesQuery();
 
   return (
-    <div className="w-full flex-1 p-8 mt-10">
-      <div className="gap-y-8 flex flex-1 h-full flex-col w-full max-w-6xl mx-auto">
+    <div className="w-full flex-1 p-8">
+      <div className="gap-y-8 flex flex-1 h-full flex-col w-full mx-auto">
         <div className="w-full flex items-center justify-between">
           <h4 className="text-2xl font-semibold text-gray-700">
             Suas Áreas de Trabalho

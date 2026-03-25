@@ -8,6 +8,9 @@ import { useOpen } from "@/hooks/use-open";
 import { ConfirmModal } from "@/components/shared/modal/confirm-modal";
 import { useDeleteWorkspace } from "../hooks/use-delete-workspace";
 import { Trash2 } from "lucide-react";
+import { WorkspaceBoardsItem } from "../workspace-boards/workspace-boards-item";
+import { useBoardsQuery } from "../workspace-boards/use-boards.query";
+import { useDeleteBoard } from "../workspace-boards/use-delete-board";
 
 interface WorkspaceItemProps {
   workspace: Workspace;
@@ -16,6 +19,10 @@ interface WorkspaceItemProps {
 export function WorkspaceItem({ workspace }: WorkspaceItemProps) {
   const { isOpen, onOpen, onClose } = useOpen();
   const { handleDelete, isDeleting } = useDeleteWorkspace(workspace.id);
+  const { data: boards = [] } = useBoardsQuery(workspace.id);
+  const { handleDelete: handleDeleteBoard, isDeletingId } = useDeleteBoard(workspace.id);
+
+  const previewBoards = boards.slice(0, 4);
 
   const onConfirmDelete = async () => {
     await handleDelete();
@@ -47,7 +54,22 @@ export function WorkspaceItem({ workspace }: WorkspaceItemProps) {
           </div>
         </div>
 
-        <div className="w-full grid grid-cols-4 gap-6"></div>
+        {previewBoards.length === 0 ? (
+          <p className="text-sm text-gray-400">
+            Ainda não há quadros neste workspace.
+          </p>
+        ) : (
+          <div className="w-full grid grid-cols-4 gap-4">
+            {previewBoards.map((board) => (
+              <WorkspaceBoardsItem
+                key={board.id}
+                board={board}
+                isLoading={isDeletingId === board.id}
+                onDelete={() => handleDeleteBoard(board.id)}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {isOpen && (

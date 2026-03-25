@@ -6,9 +6,7 @@ import { useEffect } from "react";
 import { auth } from "./config/firebase.config";
 import { userService } from "./services/firebase/user.service";
 import { useAuthStore } from "./store/auth.store";
-import { WorkspacePage } from "./pages/app/workspace/workspace-page";
-import { WorkspaceDetails } from "./pages/app/workspace/components/workspace-body/workspace-details/workspace-details";
-import { WorkspaceBoard } from "./pages/app/workspace/components/workspace-body/workspace-board/workspace-board";
+import BoardPage from "./pages/app/boards/board";
 
 export function App() {
   useEffect(() => {
@@ -30,14 +28,7 @@ export function App() {
 
       <Route element={<MainLayout />}>
         <Route path="/app/dashboard" element={<DashboardPage />} />
-        <Route element={<WorkspacePage />}>
-          <Route
-            path="/app/workspace/:id/details"
-            element={<WorkspaceDetails />}
-          />
-
-          <Route path="/app/workspace/:id/board" element={<WorkspaceBoard />} />
-        </Route>
+        <Route path="/app/board/:id" element={<BoardPage />} />
       </Route>
     </Routes>
   );

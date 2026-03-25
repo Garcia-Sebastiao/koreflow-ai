@@ -1,3 +1,5 @@
+import type { Timestamp } from "firebase/firestore";
+
 export type UserRole = "admin" | "leader" | "dev" | "qa";
 
 export interface Workspace {
@@ -23,5 +25,5 @@ export interface Board {
   id: string;
   workspaceId: string;
   title: string;
-  createdAt: Date;
+  createdAt: Timestamp | Date;
 }

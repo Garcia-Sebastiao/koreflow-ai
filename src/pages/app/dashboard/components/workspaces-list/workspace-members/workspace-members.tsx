@@ -53,16 +53,18 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
             Membros do Ambiente de Trabalho
           </h4>
 
-          <BaseSelectInput
-            mode="single"
-            label="Adicionar membro"
-            placeholder="Pesquisar por nome ou email..."
-            data={results}
-            value={null}
-            isLoading={isSearching}
-            onSearch={setTerm}
-            onChange={(item) => item && handleSelect(item)}
-          />
+          {
+            <BaseSelectInput
+              mode="single"
+              label="Adicionar membro"
+              placeholder="Pesquisar por nome ou email..."
+              data={results}
+              value={null}
+              isLoading={isSearching}
+              onSearch={setTerm}
+              onChange={(item) => item && handleSelect(item)}
+            />
+          }
 
           <div className="flex flex-col gap-y-2">
             <h6 className="text-lg font-semibold text-gray-700">
