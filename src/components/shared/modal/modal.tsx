@@ -30,7 +30,7 @@ export function BaseModal({
       <DialogContent
         showCloseButton={showCloseButton}
         className={cn(
-          "sm:max-w-106.25 transition-all lg:max-w-164 px-0 rounded-xl",
+          "sm:max-w-106.25 overflow-hidden max-h-[90dvh] transition-all lg:max-w-164 px-0 rounded-xl",
           className,
         )}
       >

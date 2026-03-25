@@ -9,6 +9,7 @@ import { TaskDetailModal } from "./components/task/task-details-modal";
 import { RejectionModal } from "./components/task/rejection-modal";
 import { useBoardQuery } from "./use-board-query";
 import { Loading } from "../loading";
+import { WorkspaceMembers } from "../dashboard/components/workspaces-list/workspace-members/workspace-members";
 
 export default function BoardPage() {
   const { id: boardId } = useParams<{ id: string }>();
@@ -41,6 +42,8 @@ export default function BoardPage() {
             {tasks.length} tarefa{tasks.length !== 1 ? "s" : ""}
           </span>
         </div>
+
+        <WorkspaceMembers workspaceId={board?.workspaceId as string} />
       </div>
 
       <div className="flex-1 overflow-x-auto px-8 py-6">

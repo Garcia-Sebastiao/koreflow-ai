@@ -8,6 +8,7 @@ import {
   AlertTriangleIcon,
   SendIcon,
   Loader2,
+  ChartAreaIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/task.types";
@@ -15,6 +16,7 @@ import { useCommentsQuery } from "./hooks/use-comments.query";
 import { useCreateComment } from "./hooks/use-create-commet.query";
 import { AssigneeSelector } from "./assignee-selector";
 import { useTaskQuery } from "./hooks/use-task.query";
+import { useEvaluateTask } from "./hooks/use-evaluate-task";
 
 const PRIORITY_STYLES = {
   low: "bg-slate-100 text-slate-500",
@@ -39,18 +41,22 @@ export function TaskDetailModal({
   isOpen,
   onClose,
 }: TaskDetailModalProps) {
+  const { evaluateTask, isEvaluating } = useEvaluateTask();
   const { data: taskData, isPending: isGettingTask } = useTaskQuery(taskId);
   const { createComment, isSending } = useCreateComment({
     task: taskData as Task,
   });
   const task = taskData as Task;
 
-
   const { data: comments = [] } = useCommentsQuery(task?.id as string);
   const [comment, setComment] = useState("");
 
   const handleSendComment = () => {
     createComment({ comment, setComment });
+  };
+
+  const handleEvaluate = () => {
+    evaluateTask({ comments, task });
   };
 
   return (
@@ -99,6 +105,19 @@ export function TaskDetailModal({
               {task.description}
             </p>
           )}
+
+          <Button
+            type="button"
+            onClick={handleEvaluate}
+            isLoading={isEvaluating}
+            variant="ghost"
+            className="self-end bg-green-500 text-white"
+          >
+            <ChartAreaIcon />
+            Avaliar Desempenho
+          </Button>
+
+          <div className="w-full h-px bg-gray-200" />
 
           <div className="flex flex-col gap-y-4">
             <h6 className="text-sm font-semibold text-gray-700">
@@ -166,7 +185,7 @@ export function TaskDetailModal({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="Escreve um comentário..."
-                className="bg-gray-100 border-none resize-none min-h-16 flex-1"
+                className="bg-gray-100 max-h-44 border-none resize-none min-h-16 flex-1"
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && !e.shiftKey) {
                     e.preventDefault();
