@@ -1,52 +1,22 @@
+import {
+  doc,
+  setDoc,
+  getDoc,
+  serverTimestamp,
+} from "firebase/firestore";
+import { db } from "@/config/firebase.config";
 import type { Task, TaskComment } from "@/types/task.types";
 import type { TaskPerformanceEvaluation } from "@/types/performance.types";
 import { ai, koreFlowConfig, modelId } from "@/config/gemini.config";
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
-
 function hoursBetween(from?: string, to?: string): number | undefined {
   if (!from || !to) return undefined;
-  const diff = new Date(to).getTime() - new Date(from).getTime();
-  return Math.round((diff / 1000 / 60 / 60) * 10) / 10;
+  return Math.round(((new Date(to).getTime() - new Date(from).getTime()) / 3600000) * 10) / 10;
 }
 
 function buildTaskContext(task: Task, comments: TaskComment[]): string {
   const rejections = comments.filter((c) => c.type === "rejection");
-  const regularComments = comments.filter((c) => c.type === "comment");
-
-  const timelineLines = [
-    `- Criada em: ${task.createdAt}`,
-    task.dueDate ? `- Prazo: ${task.dueDate}` : "- Prazo: não definido",
-    task.startedAt ? `- Iniciada em: ${task.startedAt}` : "- Nunca iniciada",
-    task.deliveredAt
-      ? `- Entregue para teste em: ${task.deliveredAt}`
-      : "- Nunca entregue para teste",
-    task.testedAt
-      ? `- Início dos testes em: ${task.testedAt}`
-      : "- Nunca testada",
-    task.completedAt
-      ? `- Concluída em: ${task.completedAt}`
-      : "- Não concluída",
-  ].join("\n");
-
-  const historyLines = (task.statusHistory ?? [])
-    .map(
-      (e) =>
-        `  [${e.occurredAt}] ${e.byUserName} moveu de "${e.fromStatus}" → "${e.toStatus}"`,
-    )
-    .join("\n");
-
-  const rejectionLines = rejections.length
-    ? rejections
-        .map((r) => `  - ${r.userName} (${r.createdAt}): "${r.content}"`)
-        .join("\n")
-    : "  Nenhuma reprovação.";
-
-  const commentLines = regularComments.length
-    ? regularComments
-        .map((c) => `  - ${c.userName} (${c.createdAt}): "${c.content}"`)
-        .join("\n")
-    : "  Nenhum comentário.";
+  const regular = comments.filter((c) => c.type === "comment");
 
   return `
 === TAREFA ===
@@ -58,23 +28,28 @@ Status actual: ${task.status}
 Responsável: ${task.assignee?.name ?? "Não atribuído"}
 
 === LINHA DO TEMPO ===
-${timelineLines}
+- Criada em: ${task.createdAt}
+- Prazo: ${task.dueDate ?? "não definido"}
+- Iniciada em: ${task.startedAt ?? "nunca"}
+- Entregue para teste: ${task.deliveredAt ?? "nunca"}
+- Início dos testes: ${task.testedAt ?? "nunca"}
+- Concluída em: ${task.completedAt ?? "não concluída"}
 
 === HISTÓRICO DE MOVIMENTOS ===
-${historyLines || "  Sem histórico."}
+${(task.statusHistory ?? []).map((e) => `  [${e.occurredAt}] ${e.byUserName}: "${e.fromStatus}" → "${e.toStatus}"`).join("\n") || "  Sem histórico."}
 
 === REPROVAÇÕES (${rejections.length}) ===
-${rejectionLines}
+${rejections.length ? rejections.map((r) => `  - ${r.userName} (${r.createdAt}): "${r.content}"`).join("\n") : "  Nenhuma."}
 
-=== COMENTÁRIOS (${regularComments.length}) ===
-${commentLines}
+=== COMENTÁRIOS (${regular.length}) ===
+${regular.length ? regular.map((c) => `  - ${c.userName} (${c.createdAt}): "${c.content}"`).join("\n") : "  Nenhum."}
 `.trim();
 }
 
 function buildPrompt(context: string): string {
   return `
-És um especialista em análise de desempenho de equipas de desenvolvimento de software.
-Analisa os dados abaixo e devolve APENAS um JSON válido, sem markdown, sem explicações, sem blocos de código.
+És um especialista em análise de desempenho de equipas de software.
+Analisa os dados abaixo e devolve APENAS JSON válido, sem markdown nem explicações.
 
 ${context}
 
@@ -107,21 +82,25 @@ Devolve exactamente este JSON:
   "recommendation": string
 }
 
-Regras de avaliação:
-- Score de 0 a 100
-- Dev: penaliza atrasos na entrega, reprovações múltiplas, tempo de início elevado
-- QA: penaliza atrasos no início dos testes, reprovações sem justificativa clara
-- Considera o prazo da tarefa (wasLate = true se completedAt > dueDate ou se não foi concluída)
-- Usa os comentários e reprovações para contexto qualitativo
-- summary, strengths, improvements e recommendation em português de Portugal
-- Todos os tempos em horas
+Regras:
+- Score 0-100. Dev: penaliza atrasos e reprovações. QA: penaliza lentidão nos testes e reprovações sem fundamento.
+- wasLate = true se completedAt > dueDate ou se não concluída tendo prazo.
+- Todos os tempos em horas. Textos em português de Portugal.
 `.trim();
 }
 
 export const performanceService = {
+  // ─── Carregar avaliação guardada ──────────────────────────────────
+  async getEvaluation(taskId: string): Promise<TaskPerformanceEvaluation | null> {
+    const snap = await getDoc(doc(db, "evaluations", taskId));
+    if (!snap.exists()) return null;
+    return snap.data() as TaskPerformanceEvaluation;
+  },
+
+  // ─── Gerar e guardar avaliação ────────────────────────────────────
   async evaluateTask(
     task: Task,
-    comments: TaskComment[],
+    comments: TaskComment[]
   ): Promise<TaskPerformanceEvaluation> {
     const context = buildTaskContext(task, comments);
     const prompt = buildPrompt(context);
@@ -133,34 +112,17 @@ export const performanceService = {
     });
 
     const raw = response.text?.trim() ?? "";
+    const clean = raw.replace(/^```json\s*/i, "").replace(/^```\s*/i, "").replace(/```$/i, "").trim();
 
-    // Remove possíveis blocos markdown caso o modelo os inclua
-    const clean = raw
-      .replace(/^```json\s*/i, "")
-      .replace(/^```\s*/i, "")
-      .replace(/```$/i, "")
-      .trim();
-
-    let parsed: Omit<
-      TaskPerformanceEvaluation,
-      "taskId" | "taskTitle" | "evaluatedAt" | "timeline"
-    > & {
-      timeline: { wasLate: boolean; totalDuration: number | null };
-    };
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let parsed: any;
     try {
       parsed = JSON.parse(clean);
     } catch {
-      throw new Error("O modelo não devolveu um JSON válido.");
+      throw new Error("O modelo não devolveu JSON válido.");
     }
 
-    // Enriquece com dados locais calculados
-    const wasLate =
-      task.dueDate && task.completedAt
-        ? new Date(task.completedAt) > new Date(task.dueDate)
-        : !task.completedAt;
-
-    return {
+    const evaluation: TaskPerformanceEvaluation = {
       taskId: task.id,
       taskTitle: task.title,
       evaluatedAt: new Date().toISOString(),
@@ -171,15 +133,21 @@ export const performanceService = {
         testedAt: task.testedAt,
         completedAt: task.completedAt,
         dueDate: task.dueDate,
-        wasLate: parsed.timeline.wasLate ?? !!wasLate,
-        totalDuration:
-          parsed.timeline.totalDuration ??
-          hoursBetween(task.createdAt, task.completedAt),
+        wasLate: parsed.timeline.wasLate,
+        totalDuration: parsed.timeline.totalDuration ?? hoursBetween(task.createdAt, task.completedAt),
       },
       participants: parsed.participants,
       overallScore: parsed.overallScore,
       overallSummary: parsed.overallSummary,
       recommendation: parsed.recommendation,
     };
+
+    // Guarda no Firestore (ID = taskId para fácil lookup)
+    await setDoc(doc(db, "evaluations", task.id), {
+      ...evaluation,
+      savedAt: serverTimestamp(),
+    });
+
+    return evaluation;
   },
 };

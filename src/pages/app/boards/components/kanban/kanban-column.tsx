@@ -29,7 +29,7 @@ export function KanbanColumn({ id, label, tasks, onAddTask, onTaskClick }: Kanba
 
   return (
     <div className="flex flex-col gap-y-3 min-w-72 w-72">
-      <div className="flex items-center justify-between px-1">
+      <div className="flex bg-gray-100 p-2 px-4 rounded-lg items-center justify-between">
         <div className="flex items-center gap-x-2">
           <span className={cn("w-2 h-2 rounded-full", styles.dot)} />
           <span className="text-sm font-semibold text-gray-700">{label}</span>

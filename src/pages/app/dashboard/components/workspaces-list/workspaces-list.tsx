@@ -23,9 +23,9 @@ export function WorkspacesList() {
               <Logo />
             </div>
 
-             <h4 className="text-2xl font-semibold text-gray-700">
-            Carregando ambientes.
-          </h4>
+            <h4 className="text-2xl font-semibold text-gray-700">
+              Carregando ambientes.
+            </h4>
           </div>
         )}
 

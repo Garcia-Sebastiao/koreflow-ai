@@ -8,7 +8,6 @@ import {
   AlertTriangleIcon,
   SendIcon,
   Loader2,
-  ChartAreaIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Task } from "@/types/task.types";
@@ -16,7 +15,7 @@ import { useCommentsQuery } from "./hooks/use-comments.query";
 import { useCreateComment } from "./hooks/use-create-commet.query";
 import { AssigneeSelector } from "./assignee-selector";
 import { useTaskQuery } from "./hooks/use-task.query";
-import { useEvaluateTask } from "./hooks/use-evaluate-task";
+import { PerformanceModal } from "../performance/performance-modal";
 
 const PRIORITY_STYLES = {
   low: "bg-slate-100 text-slate-500",
@@ -41,7 +40,6 @@ export function TaskDetailModal({
   isOpen,
   onClose,
 }: TaskDetailModalProps) {
-  const { evaluateTask, isEvaluating } = useEvaluateTask();
   const { data: taskData, isPending: isGettingTask } = useTaskQuery(taskId);
   const { createComment, isSending } = useCreateComment({
     task: taskData as Task,
@@ -53,10 +51,6 @@ export function TaskDetailModal({
 
   const handleSendComment = () => {
     createComment({ comment, setComment });
-  };
-
-  const handleEvaluate = () => {
-    evaluateTask({ comments, task });
   };
 
   return (
@@ -106,16 +100,7 @@ export function TaskDetailModal({
             </p>
           )}
 
-          <Button
-            type="button"
-            onClick={handleEvaluate}
-            isLoading={isEvaluating}
-            variant="ghost"
-            className="self-end bg-green-500 text-white"
-          >
-            <ChartAreaIcon />
-            Avaliar Desempenho
-          </Button>
+          <PerformanceModal comments={comments} task={task} />
 
           <div className="w-full h-px bg-gray-200" />
 
