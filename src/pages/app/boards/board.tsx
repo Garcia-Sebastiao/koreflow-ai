@@ -10,6 +10,10 @@ import { RejectionModal } from "./components/task/rejection-modal";
 import { useBoardQuery } from "./use-board-query";
 import { Loading } from "../loading";
 import { WorkspaceMembers } from "../dashboard/components/workspaces-list/workspace-members/workspace-members";
+import { useEvaluateBoard } from "./components/board-performance/use-evaluate-board";
+import { Button } from "@/components/ui/button";
+import { BarChart3Icon } from "lucide-react";
+import { BoardPerformanceModal } from "./components/board-performance/board-performace-modal";
 
 export default function BoardPage() {
   const { id: boardId } = useParams<{ id: string }>();
@@ -19,6 +23,15 @@ export default function BoardPage() {
 
   const { data: board, isPending: isGettingBoard } = useBoardQuery(boardId!);
   const workspaceId = board?.workspaceId ?? "";
+
+  const {
+    evaluateBoard,
+    isEvaluating,
+    isModalOpen,
+    setIsModalOpen,
+    existingEvaluation,
+    hasEvaluation,
+  } = useEvaluateBoard(boardId!);
   const { data: tasks = [] } = useTasksQuery(boardId!, workspaceId);
   const { moveTask, rejectionTask, clearRejection } = useMoveTask(boardId!);
 
@@ -43,7 +56,21 @@ export default function BoardPage() {
           </span>
         </div>
 
-        <WorkspaceMembers workspaceId={board?.workspaceId as string} />
+        <div className="flex items-center gap-x-4">
+          <WorkspaceMembers workspaceId={board?.workspaceId as string} />
+          <Button
+            onClick={
+              hasEvaluation
+                ? () => setIsModalOpen(true)
+                : () => board && evaluateBoard(board.title, tasks)
+            }
+            isLoading={isEvaluating}
+            className="h-9 px-4 text-sm bg-primary text-white"
+          >
+            <BarChart3Icon className="w-4 h-4" />
+            {hasEvaluation ? "Ver Avaliação" : "Avaliar Board"}
+          </Button>
+        </div>
       </div>
 
       <div className="flex-1 overflow-x-auto px-8 py-6">
@@ -81,6 +108,13 @@ export default function BoardPage() {
             moveTask(rejectionTask, "todo", note);
             clearRejection();
           }}
+        />
+      )}
+
+      {isModalOpen && existingEvaluation && (
+        <BoardPerformanceModal
+          evaluation={existingEvaluation}
+          onClose={() => setIsModalOpen(false)}
         />
       )}
     </div>

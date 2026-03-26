@@ -2,29 +2,23 @@ export interface ParticipantEvaluation {
   userId: string;
   userName: string;
   role: "dev" | "qa" | "other";
-
-  // Métricas de tempo
-  timeToStart?: number; // horas entre criação e início (dev)
-  deliveryTime?: number; // horas entre início e entrega para teste (dev)
-  timeToTest?: number; // horas entre receber e iniciar teste (qa)
-  totalCycleTime?: number; 
-
-  rejectionCount: number; 
-  rejectionReasons: string[]; 
-
-  // Score e avaliação
-  score: number; // 0-100
+  timeToStart?: number;
+  deliveryTime?: number;
+  timeToTest?: number;
+  totalCycleTime?: number;
+  rejectionCount: number;
+  rejectionReasons: string[];
+  score: number;
   rating: "excellent" | "good" | "average" | "poor";
   summary: string;
-  strengths: string[]; 
-  improvements: string[]; 
+  strengths: string[];
+  improvements: string[];
 }
 
 export interface TaskPerformanceEvaluation {
   taskId: string;
   taskTitle: string;
   evaluatedAt: string;
-
   timeline: {
     createdAt: string;
     startedAt?: string;
@@ -33,12 +27,60 @@ export interface TaskPerformanceEvaluation {
     completedAt?: string;
     dueDate?: string;
     wasLate: boolean;
-    totalDuration?: number; 
+    totalDuration?: number;
+  };
+  participants: ParticipantEvaluation[];
+  overallScore: number;
+  overallSummary: string;
+  recommendation: string;
+}
+
+export interface BoardMemberSummary {
+  userId: string;
+  userName: string;
+  role: "dev" | "qa" | "other";
+  tasksInvolved: number;
+  averageScore: number;
+  totalRejectionCount: number;
+  averageDeliveryTime?: number;
+  averageTimeToTest?: number;
+  rating: "excellent" | "good" | "average" | "poor";
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+}
+
+export interface BoardTaskSummary {
+  taskId: string;
+  taskTitle: string;
+  status: string;
+  wasLate: boolean;
+  overallScore: number;
+  rejectionCount: number;
+}
+
+export interface BoardPerformanceEvaluation {
+  boardId: string;
+  boardTitle: string;
+  evaluatedAt: string;
+
+  stats: {
+    totalTasks: number;
+    completedTasks: number;
+    lateTasks: number;
+    totalRejections: number;
+    completionRate: number; // %
+    onTimeRate: number; // %
+    averageTaskScore: number;
   };
 
-  participants: ParticipantEvaluation[];
+  taskSummaries: BoardTaskSummary[];
+
+  memberSummaries: BoardMemberSummary[];
 
   overallScore: number;
   overallSummary: string;
   recommendation: string;
+  highlights: string[]; // pontos de destaque positivos
+  concerns: string[]; // pontos de atenção
 }

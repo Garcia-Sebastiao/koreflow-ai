@@ -162,10 +162,7 @@ export function PerformanceModal({ comments, task }: PerformanceModalProps) {
         <BaseModal
           isOpen
           onClose={handleClose}
-          className={cn(
-            "max-w-[20%]! max-h-[95%]! overflow-y-auto",
-            evaluation && "max-w-[70%]! max-h-[95%]!",
-          )}
+          className={cn("max-w-5xl! max-h-[95%]! overflow-y-auto")}
           innerClassName="pb-6"
         >
           {isGettingEvaluation || isEvaluating ? (
