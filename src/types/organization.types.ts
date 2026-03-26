@@ -11,14 +11,14 @@ export interface Workspace {
 }
 
 export interface Member {
-  id: string; // userId_workspaceId
+  id: string; 
   userId: string;
   workspaceId: string;
   role: UserRole;
   name: string;
   email: string;
   avatar?: string;
-  title?: string; // ex: "CEO | Diretor Geral"
+  title?: string; 
 }
 
 export interface Board {

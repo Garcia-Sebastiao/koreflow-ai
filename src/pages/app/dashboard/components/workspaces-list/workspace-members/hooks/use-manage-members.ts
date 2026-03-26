@@ -20,7 +20,6 @@ export function useManageMembers(workspaceId: string) {
       setLoadingId(targetUser.uid);
 
       try {
-        console.log("Adicionando membro:", { targetUser, role, title });
         await memberService.addMember(targetUser, workspaceId, role, title);
         await invalidate();
         toast.success(`${targetUser.name} adicionado com sucesso!`);

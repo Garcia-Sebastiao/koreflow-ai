@@ -20,7 +20,6 @@ export const boardService = {
       createdAt: serverTimestamp(),
     });
 
-    // Busca o documento criado para ter o Timestamp real do Firestore
     const snap = await getDoc(doc(db, "boards", ref.id));
     return { id: snap.id, ...snap.data() } as Board;
   },

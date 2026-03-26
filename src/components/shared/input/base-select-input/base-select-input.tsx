@@ -16,7 +16,6 @@ export interface SelectItem {
   avatar?: string;
 }
 
-// ─── Modo único ───────────────────────────────────────────────────────────────
 interface SingleSelectProps {
   mode: "single";
   data: SelectItem[];

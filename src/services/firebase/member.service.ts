@@ -7,6 +7,7 @@ import {
   getDocs,
   query,
   where,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/config/firebase.config";
 import type { Member, UserRole } from "@/types/organization.types";
@@ -35,7 +36,6 @@ export const memberService = {
       );
   },
 
-  // title adicionado como parâmetro opcional
   async addMember(
     user: User,
     workspaceId: string,
@@ -61,6 +61,20 @@ export const memberService = {
 
   async removeMember(userId: string, workspaceId: string): Promise<void> {
     await deleteDoc(doc(db, "members", `${userId}_${workspaceId}`));
+  },
+
+  async getMemberByUserId(
+    userId: string,
+    workspaceId: string,
+  ): Promise<Member | null> {
+    const memberId = `${userId}_${workspaceId}`;
+    const ref = doc(db, "members", memberId);
+
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) return null;
+
+    return { id: snap.id, ...snap.data() } as Member;
   },
 
   async updateRole(

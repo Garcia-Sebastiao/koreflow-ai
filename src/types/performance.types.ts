@@ -69,8 +69,8 @@ export interface BoardPerformanceEvaluation {
     completedTasks: number;
     lateTasks: number;
     totalRejections: number;
-    completionRate: number; // %
-    onTimeRate: number; // %
+    completionRate: number; 
+    onTimeRate: number;
     averageTaskScore: number;
   };
 
@@ -81,6 +81,6 @@ export interface BoardPerformanceEvaluation {
   overallScore: number;
   overallSummary: string;
   recommendation: string;
-  highlights: string[]; // pontos de destaque positivos
-  concerns: string[]; // pontos de atenção
+  highlights: string[];
+  concerns: string[];
 }

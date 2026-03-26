@@ -6,6 +6,7 @@ import { useOpen } from "@/hooks/use-open";
 import { TrashIcon, UserStarIcon } from "lucide-react";
 import { useState } from "react";
 import type { Member } from "@/types/organization.types";
+import { useGetMemberByUser } from "../hooks/members.query";
 
 interface MemberItemProps {
   member: Member;
@@ -20,6 +21,9 @@ export function MemberItem({
   onRemove,
   onPromote,
 }: MemberItemProps) {
+  const {member: memberByUser} = useGetMemberByUser({
+    workspaceId: member?.workspaceId
+  })
   const [modalType, setModalType] = useState<"delete" | "leader" | undefined>(
     undefined,
   );
@@ -60,7 +64,7 @@ export function MemberItem({
           </div>
         </div>
 
-        <BaseDropdown>
+        {memberByUser?.role == "admin" && <BaseDropdown>
           <div className="flex flex-col">
             <Button
               onClick={() => handleOpen("delete")}
@@ -82,7 +86,7 @@ export function MemberItem({
               </Button>
             )}
           </div>
-        </BaseDropdown>
+        </BaseDropdown>}
       </div>
 
       {isOpen && (

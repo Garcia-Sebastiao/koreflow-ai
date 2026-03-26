@@ -12,6 +12,7 @@ import {
 import { MemberItem } from "./member-item";
 import { AddMemberModal } from "./add-member/add-member-modal";
 import { useManageMembers } from "./hooks/use-manage-members";
+import { useGetMemberByUser } from "../hooks/members.query";
 
 export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
   const { isOpen, onOpen, onClose } = useOpen();
@@ -20,6 +21,7 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
     onOpen: onAddOpen,
     onClose: onAddClose,
   } = useOpen();
+  const { member } = useGetMemberByUser({ workspaceId });
 
   const [selectedUser, setSelectedUser] = useState<SelectItem | null>(null);
 
@@ -40,6 +42,8 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
     onAddClose();
   };
 
+  const authorized = member?.role == "admin";
+
   return (
     <>
       <Button onClick={onOpen} className="bg-gray-100 text-gray-500 text-sm">
@@ -53,7 +57,7 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
             Membros do Ambiente de Trabalho
           </h4>
 
-          {
+          {authorized && (
             <BaseSelectInput
               mode="single"
               label="Adicionar membro"
@@ -64,7 +68,7 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
               onSearch={setTerm}
               onChange={(item) => item && handleSelect(item)}
             />
-          }
+          )}
 
           <div className="flex flex-col gap-y-2">
             <h6 className="text-lg font-semibold text-gray-700">
@@ -83,13 +87,15 @@ export function WorkspaceMembers({ workspaceId }: { workspaceId: string }) {
               ))}
             </div>
 
-            <Button
-              variant="ghost"
-              className="w-auto self-start hover:bg-transparent text-gray-500 hover:text-gray-700"
-            >
-              <LinkIcon />
-              Convidar via link
-            </Button>
+            {authorized && (
+              <Button
+                variant="ghost"
+                className="w-auto self-start hover:bg-transparent text-gray-500 hover:text-gray-700"
+              >
+                <LinkIcon />
+                Convidar via link
+              </Button>
+            )}
           </div>
         </div>
       </BaseModal>

@@ -15,7 +15,7 @@ export interface TaskComment {
   userName: string;
   userAvatar?: string;
   content: string;
-  type: "comment" | "rejection"; // rejection = reprovação do QA
+  type: "comment" | "rejection"; 
   createdAt: string;
 }
 
@@ -40,9 +40,9 @@ export interface Task {
   createdAt: string;
   createdBy: string;
 
-  startedAt?: string;      // quando movido para "doing"
-  deliveredAt?: string;    // quando movido para "to_test"
-  testedAt?: string;       // quando movido para "testing"
-  completedAt?: string;    // quando movido para "done"
+  startedAt?: string;      
+  deliveredAt?: string;    
+  testedAt?: string;       
+  completedAt?: string;    
   statusHistory: TaskStatusEvent[];
 }

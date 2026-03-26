@@ -11,6 +11,7 @@ import { Trash2 } from "lucide-react";
 import { WorkspaceBoardsItem } from "../workspace-boards/workspace-boards-item";
 import { useBoardsQuery } from "../workspace-boards/use-boards.query";
 import { useDeleteBoard } from "../workspace-boards/use-delete-board";
+import { useGetMemberByUser } from "../hooks/members.query";
 
 interface WorkspaceItemProps {
   workspace: Workspace;
@@ -20,8 +21,11 @@ export function WorkspaceItem({ workspace }: WorkspaceItemProps) {
   const { isOpen, onOpen, onClose } = useOpen();
   const { handleDelete, isDeleting } = useDeleteWorkspace(workspace.id);
   const { data: boards = [] } = useBoardsQuery(workspace.id);
-  const { handleDelete: handleDeleteBoard, isDeletingId } = useDeleteBoard(workspace.id);
+  const { handleDelete: handleDeleteBoard, isDeletingId } = useDeleteBoard(
+    workspace.id,
+  );
 
+  const { member } = useGetMemberByUser({ workspaceId: workspace?.id });
   const previewBoards = boards.slice(0, 4);
 
   const onConfirmDelete = async () => {
@@ -41,16 +45,18 @@ export function WorkspaceItem({ workspace }: WorkspaceItemProps) {
           <div className="flex items-center gap-x-4">
             <WorkspaceMembers workspaceId={workspace.id} />
             <WorkspaceBoards workspaceId={workspace.id} />
-            <BaseDropdown>
-              <Button
-                variant="ghost"
-                className="hover:bg-red-100 w-full justify-start text-gray-500 transition-all hover:text-red-400"
-                onClick={onOpen}
-              >
-                <Trash2 className="size-4" />
-                Apagar Workspace
-              </Button>
-            </BaseDropdown>
+            {member?.role == "admin" && (
+              <BaseDropdown>
+                <Button
+                  variant="ghost"
+                  className="hover:bg-red-100 w-full justify-start text-gray-500 transition-all hover:text-red-400"
+                  onClick={onOpen}
+                >
+                  <Trash2 className="size-4" />
+                  Apagar Workspace
+                </Button>
+              </BaseDropdown>
+            )}
           </div>
         </div>
 

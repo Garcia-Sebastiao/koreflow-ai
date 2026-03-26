@@ -8,9 +8,12 @@ import { WorkspaceBoardsItem } from "./workspace-boards-item";
 import { useBoardsQuery } from "./use-boards.query";
 import { useDeleteBoard } from "./use-delete-board";
 import { CreateBoardModal } from "./create-board/create-board-modal";
+import { useGetMemberByUser } from "../hooks/members.query";
 
 export function WorkspaceBoards({ workspaceId }: { workspaceId: string }) {
   const { isOpen, onOpen, onClose } = useOpen();
+  const { member } = useGetMemberByUser({ workspaceId });
+
   const {
     isOpen: isCreateOpen,
     onOpen: onCreateOpen,
@@ -33,7 +36,6 @@ export function WorkspaceBoards({ workspaceId }: { workspaceId: string }) {
         Quadros ({boards.length})
       </Button>
 
-      {/* ── Modal principal de quadros ── */}
       <BaseModal showCloseButton={false} isOpen={isOpen} onClose={onClose}>
         <div className="w-full flex flex-col gap-y-6">
           <div className="flex items-center justify-between">
@@ -41,10 +43,12 @@ export function WorkspaceBoards({ workspaceId }: { workspaceId: string }) {
               Quadros do Ambiente de Trabalho
             </h4>
 
-            <Button onClick={onCreateOpen} className="h-9 px-4 text-sm">
-              <PlusIcon className="w-4 h-4" />
-              Novo quadro
-            </Button>
+            {member?.role == "admin" && (
+              <Button onClick={onCreateOpen} className="h-9 px-4 text-sm">
+                <PlusIcon className="w-4 h-4" />
+                Novo quadro
+              </Button>
+            )}
           </div>
 
           <BaseInput

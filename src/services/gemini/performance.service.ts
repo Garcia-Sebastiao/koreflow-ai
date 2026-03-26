@@ -84,7 +84,6 @@ Regras:
 }
 
 export const performanceService = {
-  // ─── Tarefa ───────────────────────────────────────────────────────
   async getEvaluation(
     taskId: string,
   ): Promise<TaskPerformanceEvaluation | null> {
@@ -167,7 +166,6 @@ Regras: Score 0-100. Textos em português de Portugal.`;
     return evaluation;
   },
 
-  // ─── Board ────────────────────────────────────────────────────────
   async getBoardEvaluation(
     boardId: string,
   ): Promise<BoardPerformanceEvaluation | null> {
@@ -182,7 +180,6 @@ Regras: Score 0-100. Textos em português de Portugal.`;
     tasks: Task[],
     commentsMap: Record<string, TaskComment[]>,
   ): Promise<BoardPerformanceEvaluation> {
-    // Pré-calcula estatísticas locais
     const completed = tasks.filter((t) => t.status === "done");
     const late = tasks.filter((t) =>
       t.dueDate && t.completedAt
@@ -208,12 +205,11 @@ Regras: Score 0-100. Textos em português de Portugal.`;
         taskTitle: t.title,
         status: t.status,
         wasLate: !!wasLate,
-        overallScore: 0, // será preenchido pela IA
+        overallScore: 0,
         rejectionCount: rejCount,
       };
     });
 
-    // Contexto de todas as tarefas para a IA
     const tasksContext = tasks
       .map((t) => buildTaskContext(t, commentsMap[t.id] ?? []))
       .join("\n\n---\n\n");

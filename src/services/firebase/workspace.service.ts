@@ -14,7 +14,6 @@ import { db } from "@/config/firebase.config";
 import type { Member, Workspace } from "@/types/organization.types";
 
 export const workspaceService = {
-  // ─── Criar Workspace ───────────────────────────────────────────────
   async createWorkspace(
     name: string,
     ownerId: string,
@@ -26,7 +25,6 @@ export const workspaceService = {
       createdAt: serverTimestamp(),
     });
 
-    // Cria o membro owner com role "admin" usando ID composto
     const memberId = `${ownerId}_${workspaceRef.id}`;
     const memberRef = doc(db, "members", memberId);
 
@@ -49,9 +47,7 @@ export const workspaceService = {
     };
   },
 
-  // ─── Listar Workspaces do utilizador ───────────────────────────────
   async listWorkspacesByUser(userId: string): Promise<Workspace[]> {
-    // 1. Busca todos os memberships do utilizador
     const membersQuery = query(
       collection(db, "members"),
       where("userId", "==", userId)
@@ -60,7 +56,6 @@ export const workspaceService = {
 
     if (membersSnap.empty) return [];
 
-    // 2. Busca cada workspace em paralelo
     const workspaceIds = membersSnap.docs.map((d) => d.data().workspaceId);
 
     const workspacePromises = workspaceIds.map((id) =>
@@ -73,7 +68,6 @@ export const workspaceService = {
       .map((d) => ({ id: d.id, ...d.data() } as Workspace));
   },
 
-  // ─── Buscar um Workspace por ID ────────────────────────────────────
   async getWorkspaceById(workspaceId: string): Promise<Workspace | null> {
     const workspaceDoc = await getDoc(doc(db, "workspaces", workspaceId));
 
@@ -82,9 +76,6 @@ export const workspaceService = {
     return { id: workspaceDoc.id, ...workspaceDoc.data() } as Workspace;
   },
 
-  // ─── Deletar Workspace ─────────────────────────────────────────────
-  // Apenas o owner (admin) pode deletar.
-  // Deleta o workspace + todos os membros associados.
   async deleteWorkspace(
     workspaceId: string,
     requesterId: string
@@ -102,7 +93,6 @@ export const workspaceService = {
       throw new Error("Apenas o proprietário pode eliminar este workspace.");
     }
 
-    // Busca todos os membros do workspace para deletar em batch
     const membersQuery = query(
       collection(db, "members"),
       where("workspaceId", "==", workspaceId)
@@ -117,7 +107,6 @@ export const workspaceService = {
     await batch.commit();
   },
 
-  // ─── Remover um Membro do Workspace ───────────────────────────────
   async removeMember(userId: string, workspaceId: string): Promise<void> {
     const memberId = `${userId}_${workspaceId}`;
     await deleteDoc(doc(db, "members", memberId));

@@ -7,6 +7,7 @@ import { TrashIcon } from "lucide-react";
 import { useNavigate } from "react-router";
 import type { Board } from "@/types/organization.types";
 import type { Timestamp } from "firebase/firestore";
+import { useGetMemberByUser } from "../hooks/members.query";
 
 interface WorkspaceBoardsItemProps {
   board: Board;
@@ -21,6 +22,7 @@ export function WorkspaceBoardsItem({
 }: WorkspaceBoardsItemProps) {
   const { isOpen, onClose, onOpen } = useOpen();
   const navigate = useNavigate();
+  const { member } = useGetMemberByUser({ workspaceId: board?.workspaceId });
 
   const handleConfirm = () => {
     onDelete();
@@ -55,16 +57,18 @@ export function WorkspaceBoardsItem({
         </div>
 
         <div onClick={(e) => e.stopPropagation()}>
-          <BaseDropdown>
-            <Button
-              onClick={onOpen}
-              disabled={isLoading}
-              className="text-gray-500 w-full hover:text-red-500 justify-start bg-transparent hover:bg-red-500/10"
-            >
-              <TrashIcon />
-              Eliminar Quadro
-            </Button>
-          </BaseDropdown>
+          {member?.role == "admin" && (
+            <BaseDropdown>
+              <Button
+                onClick={onOpen}
+                disabled={isLoading}
+                className="text-gray-500 w-full hover:text-red-500 justify-start bg-transparent hover:bg-red-500/10"
+              >
+                <TrashIcon />
+                Eliminar Quadro
+              </Button>
+            </BaseDropdown>
+          )}
         </div>
       </div>
 
