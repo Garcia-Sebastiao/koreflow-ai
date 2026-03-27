@@ -52,6 +52,7 @@ export function SignInPage() {
 
         <form onSubmit={handleSubmit} className="w-full flex gap-y-6 flex-col">
           <BaseInput
+            disabled
             {...register("email")}
             className="border-none h-11 bg-gray-100"
             placeholder="Digite o seu email"
@@ -60,6 +61,7 @@ export function SignInPage() {
           />
 
           <PasswordInput
+            disabled
             {...register("password")}
             className="border-none h-11 bg-gray-100"
             placeholder="Digite a sua senha"
@@ -82,9 +84,9 @@ export function SignInPage() {
           )}
 
           <Button
+            disabled
             type="submit"
             isLoading={isSubmitting}
-            disabled={isSubmitting}
             className="w-full h-11 bg-primary"
           >
             {isSignUp ? "Cadastrar e Entrar" : "Entrar"}

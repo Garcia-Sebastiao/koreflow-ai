@@ -11,6 +11,7 @@ import {
   BarChart3Icon,
   UsersIcon,
   ListTodoIcon,
+  ChevronLeftIcon,
 } from "lucide-react";
 import type {
   BoardPerformanceEvaluation,
@@ -20,6 +21,7 @@ import type {
 interface BoardPerformanceModalProps {
   evaluation: BoardPerformanceEvaluation;
   onClose: () => void;
+  onBack?: () => void;
 }
 
 const RATING_CONFIG = {
@@ -244,6 +246,7 @@ function MemberCard({ member }: { member: BoardMemberSummary }) {
 export function BoardPerformanceModal({
   evaluation,
   onClose,
+  onBack,
 }: BoardPerformanceModalProps) {
   const { stats } = evaluation;
 
@@ -258,6 +261,17 @@ export function BoardPerformanceModal({
         {/* ── Header ── */}
         <div className="flex items-start justify-between gap-x-4">
           <div className="flex flex-col gap-y-1">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center gap-x-1 text-xs text-gray-400 hover:text-gray-600 transition-colors mb-1"
+              >
+                <ChevronLeftIcon className="w-3.5 h-3.5" />
+                Histórico
+              </button>
+            )}
+
             <div className="flex items-center gap-x-2">
               <BarChart3Icon className="w-4 h-4 text-primary" />
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">

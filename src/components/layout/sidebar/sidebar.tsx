@@ -36,7 +36,7 @@ export function Sidebar() {
               "w-12 h-12 flex rounded-sm items-center transition-all justify-center",
               pathname?.includes("projects") && "bg-primary/10",
             )}
-            to="/app/projects"
+            to="#"
           >
             <ListTodoIcon
               className={cn(

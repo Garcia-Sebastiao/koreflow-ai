@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams } from "react-router";
+import { useNavigate, useParams } from "react-router";
 import type { TaskStatus } from "@/types/board.types";
 import { useTasksQuery } from "./components/task/hooks/use-task.query";
 import { useMoveTask } from "./components/task/hooks/use-move-task";
@@ -12,8 +12,11 @@ import { Loading } from "../loading";
 import { WorkspaceMembers } from "../dashboard/components/workspaces-list/workspace-members/workspace-members";
 import { useEvaluateBoard } from "./components/board-performance/use-evaluate-board";
 import { Button } from "@/components/ui/button";
-import { BarChart3Icon } from "lucide-react";
+import { BarChart3Icon, ChevronLeft, SparklesIcon } from "lucide-react";
 import { BoardPerformanceModal } from "./components/board-performance/board-performace-modal";
+import { BoardPerformanceHistoryModal } from "./components/board-performance/board-performance-history-modal";
+import { queryClient } from "@/config/client.config";
+import { PERFORMANCE_KEYS } from "./components/performance/utils/performance.keys";
 
 export default function BoardPage() {
   const { id: boardId } = useParams<{ id: string }>();
@@ -27,11 +30,16 @@ export default function BoardPage() {
   const {
     evaluateBoard,
     isEvaluating,
-    isModalOpen,
-    setIsModalOpen,
-    existingEvaluation,
-    hasEvaluation,
+    isLoadingHistory,
+    history,
+    modalView,
+    selectedEvaluation,
+    openHistory,
+    closeModal,
+    openDetail,
+    backToHistory,
   } = useEvaluateBoard(boardId!);
+  const navigate = useNavigate();
   const { data: tasks = [] } = useTasksQuery(boardId!, workspaceId);
   const { moveTask, rejectionTask, clearRejection } = useMoveTask(boardId!);
 
@@ -48,6 +56,16 @@ export default function BoardPage() {
     <div className="flex flex-col h-full w-full">
       <div className="flex items-center justify-between px-8 py-5 border-b border-gray-100">
         <div className="flex flex-col">
+          <button
+            onClick={() => {
+              navigate("/app/dashboard");
+            }}
+            className="text-sm font-medium text-gray-400 flex items-center gap-x-2 mb-6"
+            type="button"
+          >
+            <ChevronLeft className="size-4 text-gray-500" />
+            Voltar
+          </button>
           <h1 className="text-xl font-semibold text-gray-800">
             {board?.title ?? "Carregando..."}
           </h1>
@@ -58,17 +76,22 @@ export default function BoardPage() {
 
         <div className="flex items-center gap-x-4">
           <WorkspaceMembers workspaceId={board?.workspaceId as string} />
+          {history.length > 0 && (
+            <Button
+              onClick={openHistory}
+              className="h-9 px-4 text-sm bg-gray-100 text-gray-600 hover:bg-gray-200"
+            >
+              <BarChart3Icon className="w-4 h-4" />
+              Histórico de avaliações ({history.length})
+            </Button>
+          )}
           <Button
-            onClick={
-              hasEvaluation
-                ? () => setIsModalOpen(true)
-                : () => board && evaluateBoard(board.title, tasks)
-            }
+            onClick={() => board && evaluateBoard(board.title, tasks)}
             isLoading={isEvaluating}
-            className="h-9 px-4 text-sm bg-primary text-white"
+            className="h-9 px-4 text-sm"
           >
-            <BarChart3Icon className="w-4 h-4" />
-            {hasEvaluation ? "Ver Avaliação" : "Avaliar Board"}
+            <SparklesIcon className="w-4 h-4" />
+            Nova Avaliação
           </Button>
         </div>
       </div>
@@ -111,10 +134,27 @@ export default function BoardPage() {
         />
       )}
 
-      {isModalOpen && existingEvaluation && (
+      {modalView === "history" && (
+        <BoardPerformanceHistoryModal
+          boardTitle={board?.title ?? ""}
+          history={history}
+          isLoading={isLoadingHistory}
+          onSelect={(evaluation) => {
+            queryClient.setQueryData(
+              PERFORMANCE_KEYS.board(boardId!),
+              evaluation,
+            );
+            openDetail(evaluation);
+          }}
+          onClose={closeModal}
+        />
+      )}
+
+      {modalView === "detail" && selectedEvaluation && (
         <BoardPerformanceModal
-          evaluation={existingEvaluation}
-          onClose={() => setIsModalOpen(false)}
+          evaluation={selectedEvaluation}
+          onBack={history.length > 0 ? backToHistory : undefined}
+          onClose={closeModal}
         />
       )}
     </div>

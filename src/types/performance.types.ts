@@ -60,24 +60,23 @@ export interface BoardTaskSummary {
 }
 
 export interface BoardPerformanceEvaluation {
+  id: string;          
   boardId: string;
   boardTitle: string;
   evaluatedAt: string;
-
+  evaluationIndex: number;
   stats: {
     totalTasks: number;
     completedTasks: number;
     lateTasks: number;
     totalRejections: number;
-    completionRate: number; 
+    completionRate: number;
     onTimeRate: number;
     averageTaskScore: number;
   };
 
   taskSummaries: BoardTaskSummary[];
-
   memberSummaries: BoardMemberSummary[];
-
   overallScore: number;
   overallSummary: string;
   recommendation: string;
