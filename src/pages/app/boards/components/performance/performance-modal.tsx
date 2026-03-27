@@ -144,19 +144,21 @@ export function PerformanceModal({ comments, task }: PerformanceModalProps) {
 
   return (
     <>
-      <Button
-        type="button"
-        disabled={isEvaluating || isGettingEvaluation}
-        onClick={
-          hasEvaluation ? openExisting : () => evaluateTask(task, comments)
-        }
-        isLoading={isEvaluating || isGettingEvaluation}
-        variant="ghost"
-        className="self-end bg-green-500 text-white"
-      >
-        <ChartAreaIcon />
-        {hasEvaluation ? "Ver Avaliação" : "Avaliar Desempenho"}
-      </Button>
+      {task?.status == "done" && (
+        <Button
+          type="button"
+          disabled={isEvaluating || isGettingEvaluation}
+          onClick={
+            hasEvaluation ? openExisting : () => evaluateTask(task, comments)
+          }
+          isLoading={isEvaluating || isGettingEvaluation}
+          variant="ghost"
+          className="self-end bg-green-500 text-white"
+        >
+          <ChartAreaIcon />
+          {hasEvaluation ? "Ver Avaliação" : "Avaliar Desempenho"}
+        </Button>
+      )}
 
       {isModalOpen && (
         <BaseModal
